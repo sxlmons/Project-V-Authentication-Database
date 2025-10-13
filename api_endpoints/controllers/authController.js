@@ -92,20 +92,19 @@ export const refreshToken = async (req, res) => {
 
   try {
     // Exchange refresh token for new session
-    const { data, error } = await supabase.auth.api.refreshAccessToken(refreshToken);
+    const { data, error } = await supabase.auth.refreshSession({ refresh_token: refreshToken });
 
     if (error) return res.status(401).json({ error: error.message });
-
+    delete data.session.user;
     const user_id = data.user.id;
 
     let {data: account, accountError} = await supabase.from('Account').select('*').eq('account_id', user_id).single();
     if (accountError) throw accountError;
 
+    data.session.user = account;
+
     res.status(200).json({
-      access_token: data.access_token,
-      refresh_token: data.refresh_token,
-      expires_at: data.expires_at,
-      user: account
+      session: data.session
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
