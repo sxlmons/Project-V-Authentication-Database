@@ -15,9 +15,10 @@ export const signup = async (req, res) => {
 
     const userId = user.user.id;
 
-    const { error: profileError } = await supabase.from("Account").insert([
+    const {data: account, error: profileError } = await supabase.from("Account").insert([
       { account_id: userId, username, email, role },
-    ]);
+    ])
+    .select();
 
     if (profileError) {
       await supabase.auth.admin.deleteUser(userId);
@@ -28,7 +29,7 @@ export const signup = async (req, res) => {
       });
     }
 
-    res.status(200).json({ message: "User created successfully", user: user.user });
+    res.status(200).json({ message: "User created successfully", user: account[0] });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -46,8 +47,17 @@ export const login = async (req, res) => {
 
     if (error) throw error;
 
+    const user_id = data.user.id;
+    delete data.session.user;
+
+    let {data: account, accountError} = await supabase.from('Account').select('*').eq('account_id', user_id).single();
+    if (accountError) throw accountError;
+
+    data.session.user = account;
+
     res.status(200).json({ message: "Login successful", session: data.session });
   } catch (error) {
+    console.error("Login error:", error.message);
     res.status(400).json({ error: error.message });
   }
 };
@@ -63,7 +73,12 @@ export const authMe = async (req, res) => {
 
     if (error) throw error;
 
-    res.status(200).json({ user: data.user });
+    const user_id = data.user.id;
+
+    let {data: account, accountError} = await supabase.from('Account').select('*').eq('account_id', user_id).single();
+    if (accountError) throw accountError;
+
+    res.status(200).json({ user: account });
   } catch (error) {
     res.status(401).json({ error: error.message });
   }
@@ -77,15 +92,19 @@ export const refreshToken = async (req, res) => {
 
   try {
     // Exchange refresh token for new session
-    const { data, error } = await supabase.auth.api.refreshAccessToken(refreshToken);
+    const { data, error } = await supabase.auth.refreshSession({ refresh_token: refreshToken });
 
     if (error) return res.status(401).json({ error: error.message });
+    delete data.session.user;
+    const user_id = data.user.id;
+
+    let {data: account, accountError} = await supabase.from('Account').select('*').eq('account_id', user_id).single();
+    if (accountError) throw accountError;
+
+    data.session.user = account;
 
     res.status(200).json({
-      access_token: data.access_token,
-      refresh_token: data.refresh_token,
-      expires_at: data.expires_at,
-      user: data.user
+      session: data.session
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
