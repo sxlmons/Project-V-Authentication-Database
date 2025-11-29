@@ -1,15 +1,22 @@
+/**
+ * Auth Controller Unit Tests
+ * - Tests controller logic in isolation with mocked Supabase
+ * - Covers signup, login, authMe, and refreshToken functions
+ * - Verifies success paths, error handling, and rollback behavior
+ */
+
 import { jest } from "@jest/globals";
 
 // Silence dotenv logs
 process.env.DOTENV_CONFIG_QUIET = "true";
 
-// 🧩 Mock Supabase client
+// Mock Supabase client
 jest.unstable_mockModule("../../api_endpoints/utils/supabaseClient.js", () => ({
   default: {
     auth: {
       admin: {
         createUser: jest.fn(),
-        deleteUser: jest.fn(), // ✅ Added deleteUser mock
+        deleteUser: jest.fn(),
       },
       signInWithPassword: jest.fn(),
       getUser: jest.fn(),
@@ -25,7 +32,7 @@ const { signup, login, authMe, refreshToken } = await import(
   "../../api_endpoints/controllers/authController.js"
 );
 
-// ✅ Chainable `from` mock
+// Chainable `from` mock
 const fromMock = {
   insert: jest.fn().mockReturnThis(),
   select: jest.fn().mockReturnThis(),
@@ -34,7 +41,7 @@ const fromMock = {
 };
 supabase.from.mockReturnValue(fromMock);
 
-// ✅ Mock response helper
+// Mock response helper
 const mockRes = () => {
   const res = {};
   res.status = jest.fn().mockReturnValue(res);
@@ -48,7 +55,7 @@ describe("Auth Controller Unit Tests", () => {
     supabase.from.mockReturnValue(fromMock); // rebind chain before each test
   });
 
-  // 🧪 SIGNUP TESTS
+  // SIGNUP TESTS
   describe("signup()", () => {
     it("should create user and account successfully", async () => {
       const req = {
@@ -142,7 +149,7 @@ describe("Auth Controller Unit Tests", () => {
     });
   });
 
-  // 🧪 LOGIN TESTS
+  // LOGIN TESTS
   describe("login()", () => {
     it("should login successfully and return session with account", async () => {
       const req = { body: { email: "john@example.com", password: "Password@123" } };
@@ -189,7 +196,7 @@ describe("Auth Controller Unit Tests", () => {
     });
   });
 
-  // 🧪 AUTH ME TESTS
+  // AUTH ME TESTS
   describe("authMe()", () => {
     it("should return 401 if no token", async () => {
       const req = { headers: {} };
@@ -233,7 +240,7 @@ describe("Auth Controller Unit Tests", () => {
     });
   });
 
-  // 🧪 REFRESH TOKEN TESTS
+  // REFRESH TOKEN TESTS
   describe("refreshToken()", () => {
     it("should refresh session successfully", async () => {
       const req = { body: { refresh_token: "validToken123" } };

@@ -1,3 +1,10 @@
+/**
+ * Auth Router Integration Tests
+ * - Verifies that all auth endpoints are reachable
+ * - Confirms routing is correctly configured for signup, login, refreshToken, and me
+ * - Ensures endpoints return valid HTTP status codes when hit
+ */
+
 import express from "express";
 import router from "../../api_endpoints/controllers/auth_router.js";
 import request from "supertest";
