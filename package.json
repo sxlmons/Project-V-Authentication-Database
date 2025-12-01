@@ -1,5 +1,8 @@
 {
   "name": "project-v-authentication-database",
+  "test:unit": "NODE_OPTIONS=--experimental-vm-modules jest tests/unit --runInBand",
+  "test:integration": "NODE_OPTIONS=--experimental-vm-modules jest tests/integration --runInBand",
+  "test:regression": "NODE_OPTIONS=--experimental-vm-modules jest tests/regression --runInBand",
   "version": "1.0.0",
   "type": "module",
   "scripts": {

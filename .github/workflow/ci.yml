@@ -1,0 +1,42 @@
+name: Node.js Test Pipeline
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:     
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Run Unit Test
+      - name: Run Unit Tests
+        run: npm run test:unit
+
+
+      # Run Integration Tests
+
+      - name: Run Integration Tests
+        run: npm run test:integration
+
+
+      # Run Regression Tests 
+      - name: Run Regression Tests (only if secrets exist)
+        if: ${{ secrets.SUPABASE_URL != '' }}   # prevents failure if no secrets
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: npm run test:regression
