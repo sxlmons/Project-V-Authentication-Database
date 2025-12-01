@@ -1,12 +1,13 @@
 {
   "name": "project-v-authentication-database",
-  "test:unit": "NODE_OPTIONS=--experimental-vm-modules jest tests/unit --runInBand",
-  "test:integration": "NODE_OPTIONS=--experimental-vm-modules jest tests/integration --runInBand",
-  "test:regression": "NODE_OPTIONS=--experimental-vm-modules jest tests/regression --runInBand",
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "test": "NODE_OPTIONS=--experimental-vm-modules jest --coverage"
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest --coverage",
+    "test:unit": "NODE_OPTIONS=--experimental-vm-modules jest tests/unit --runInBand",
+    "test:integration": "NODE_OPTIONS=--experimental-vm-modules jest tests/integration --runInBand",
+    "test:regression": "NODE_OPTIONS=--experimental-vm-modules jest tests/regression --runInBand",
+    "test:database": "node database-tests/tests.js"
   },
   "devDependencies": {
     "jest": "^30.2.0",
